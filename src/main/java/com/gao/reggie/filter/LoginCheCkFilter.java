@@ -42,7 +42,7 @@ public class LoginCheCkFilter implements Filter {
 
         //如果不需要处理，则直接放行
         if (check = true) {
-            log.info("本次请求{}不需要处理", requestURI);
+            log.info("本次请求 {} 不需要处理", requestURI);
             filterChain.doFilter(request, response);
             return;
         }

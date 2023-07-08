@@ -1,12 +1,14 @@
 package com.gao.reggie.contoller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gao.reggie.common.R;
 import com.gao.reggie.entity.Employee;
 import com.gao.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,15 +23,14 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     /**
-     * 员工登陆
+     * 员工登陆（）
      *
      * @param request
      * @param employee
      * @return
      */
-    @PostMapping
+    @PostMapping("/login")
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
-
 
         //密码通过md5加密
         String password = employee.getPassword();
@@ -63,6 +64,7 @@ public class EmployeeController {
     /**
      * 员工退出
      */
+    @PostMapping("/logout")
     public R<String> logout(HttpServletRequest request) {
         request.getSession().removeAttribute("employee");
         return R.success("退出成功");
@@ -71,17 +73,18 @@ public class EmployeeController {
     /**
      * 新增员工
      */
+    @PostMapping
     public R<String> save(HttpServletRequest request, @RequestBody Employee employee) {
         log.info("新增员工，员工信息为：{}", employee.toString());
 
         //设置初始密码，但是需要md5加密处理
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
-        //设置创建时间以及更新时间
+        //设置创建时间以及更新时间（这俩个简单）
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
 
-        //来获得当前登陆用户的id
+        //来获得当前登陆用户的id（request.getSession().getAttribute("employee")这是获取id的方法
         Long empId = (Long) request.getSession().getAttribute("employee");
         employee.setCreateUser(empId);
         employee.setUpdateUser(empId);
@@ -89,4 +92,34 @@ public class EmployeeController {
         employeeService.save(employee);
         return R.success("新增员工成功");
     }
+
+    /**
+     * 员工信息分页查询
+     *
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @GetMapping("/page")
+    public R<Page> page(int page, int pageSize, String name) {
+
+        //构造分页构造器（page pageSize）
+        Page pageinfo = new Page(page, pageSize);
+
+        //构造条件构造器（name）
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper();
+
+        //添加构造条件,这里的like里面应该是：StringUtils.isNotEmpty(name),这里的意思是当这个地方不为空的情况才会添加
+        queryWrapper.like(StringUtils.hasText(name), Employee::getName, name);
+
+        //添加排序条件
+        queryWrapper.orderByDesc(Employee::getUpdateTime);
+
+        //执行查询
+        employeeService.page(pageinfo, queryWrapper);
+
+        return R.success(pageinfo);
+    }
 }
+
