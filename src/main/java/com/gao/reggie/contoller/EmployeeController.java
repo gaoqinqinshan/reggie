@@ -121,5 +121,20 @@ public class EmployeeController {
 
         return R.success(pageinfo);
     }
-}
 
+    /**
+     * 根据id修改员工信息
+     *
+     * @param employee
+     * @return
+     */
+    @PutMapping
+    public R<String> updata(HttpServletRequest request, @RequestBody Employee employee) {
+
+        Long emId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateUser(emId);
+        employee.setUpdateTime(LocalDateTime.now());
+        employeeService.updateById(employee);
+        return R.success("员工信息修改成功");
+    }
+}
