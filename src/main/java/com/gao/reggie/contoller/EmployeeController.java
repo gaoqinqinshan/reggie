@@ -133,8 +133,8 @@ public class EmployeeController {
 
         Long emId = (Long) request.getSession().getAttribute("employee");
         employee.setUpdateUser(emId);
-        employee.setUpdateTime(LocalDateTime.now());
         employeeService.updateById(employee);
+        employee.setUpdateTime(LocalDateTime.now());
         return R.success("员工信息修改成功");
     }
 }
