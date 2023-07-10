@@ -135,7 +135,22 @@ public class EmployeeController {
         employee.setUpdateUser(emId);
         employeeService.updateById(employee);
         employee.setUpdateTime(LocalDateTime.now());
+
         return R.success("员工信息修改成功");
+    }
+
+    /**
+     * 根据员工id查找信息
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id) {
+        log.info("根据员工id查找员工信息");
+        Employee employee = employeeService.getById(id);
+
+        return R.success(employee);
     }
 
 }
