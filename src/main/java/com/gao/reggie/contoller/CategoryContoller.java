@@ -69,8 +69,7 @@ public class CategoryContoller {
     @DeleteMapping
     public R<String> delect(Long id) {
 
-
-        categoryService.removeById(id);
+        categoryService.remove(id);
         return R.success("分类信息删除成功");
     }
 }
