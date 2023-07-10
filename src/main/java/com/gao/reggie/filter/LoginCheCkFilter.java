@@ -1,6 +1,7 @@
 package com.gao.reggie.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.gao.reggie.common.BaseContext;
 import com.gao.reggie.common.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -9,7 +10,6 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileFilter;
 import java.io.IOException;
 
 /**
@@ -50,6 +50,10 @@ public class LoginCheCkFilter implements Filter {
         //如果登陆状态，如果已经登陆，则直接放行
         if (request.getSession().getAttribute("employee") != null) {
             log.info("用户已经登陆，用户ID为{}", request.getSession().getAttribute("employee"));
+
+            Long empId = (Long) request.getSession().getAttribute("employee");
+            BaseContext.setCurrentId(empId);
+
             filterChain.doFilter(request, response);
             return;
         }
